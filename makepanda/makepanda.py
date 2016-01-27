@@ -86,6 +86,7 @@ PkgListSet(["PYTHON", "DIRECT",                        # Python support
   "GTK2",                                              # GTK2 is used for PStats on Unix
   "MFC", "WX", "FLTK",                                 # Used for web plug-in only
   "ROCKET", "AWESOMIUM",                               # GUI libraries
+  "DETOUR",                                            # Pathfinding
   "CARBON", "COCOA",                                   # Mac OS X toolkits
   "X11", "XF86DGA", "XRANDR", "XCURSOR",               # Unix platform support
   "PANDATOOL", "PVIEW", "DEPLOYTOOLS",                 # Toolchain
@@ -627,6 +628,8 @@ if (COMPILER == "MSVC"):
             LibName("ROCKET", GetThirdpartyDir() + "rocket/lib/" + SDK["PYTHONVERSION"] + "/boost_python-vc100-mt-1_54.lib")
         if (GetOptimize() <= 3):
             LibName("ROCKET", GetThirdpartyDir() + "rocket/lib/RocketDebugger.lib")
+    if (PkgSkip("DETOUR")==0):
+        LibName("DETOUR", GetThirdpartyDir() + "recastnavigation/lib/Detour.lib")
     if (PkgSkip("OPENAL")==0):   LibName("OPENAL",   GetThirdpartyDir() + "openal/lib/OpenAL32.lib")
     if (PkgSkip("ODE")==0):
         LibName("ODE",      GetThirdpartyDir() + "ode/lib/ode_single.lib")
@@ -767,6 +770,7 @@ if (COMPILER=="GCC"):
         SmartPkgEnable("VORBIS",    "vorbisfile",("vorbisfile", "vorbis", "ogg"), ("ogg/ogg.h", "vorbis/vorbisfile.h"))
         SmartPkgEnable("JPEG",      "",          ("jpeg"), "jpeglib.h")
         SmartPkgEnable("PNG",       "libpng",    ("png"), "png.h", tool = "libpng-config")
+        SmartPkgEnable("DETOUR",    "",          ("Detour"), "DetourNavMesh.h")
 
         if GetTarget() == "darwin" and not PkgSkip("FFMPEG"):
             LibName("FFMPEG", "-Wl,-read_only_relocs,suppress")
@@ -2949,6 +2953,8 @@ CopyAllHeaders('panda/src/pnmimagetypes')
 CopyAllHeaders('panda/src/recorder')
 if (PkgSkip("ROCKET")==0):
     CopyAllHeaders('panda/src/rocket')
+if (PkgSkip("DETOUR")==0):
+    CopyAllHeaders('panda/src/detour')
 if (PkgSkip("VRPN")==0):
     CopyAllHeaders('panda/src/vrpn')
 CopyAllHeaders('panda/src/wgldisplay')
@@ -4079,6 +4085,35 @@ if (PkgSkip("ROCKET") == 0) and (not RUNTIME):
   TargetAdd('rocket.pyd', input='libp3interrogatedb.dll')
   TargetAdd('rocket.pyd', input=COMMON_PANDA_LIBS)
   TargetAdd('rocket.pyd', opts=['PYTHON', 'ROCKET'])
+
+#
+# DIRECTORY: panda/src/detour/
+#
+
+if (PkgSkip("DETOUR") == 0) and (not RUNTIME):
+  OPTS=['DIR:panda/src/detour', 'BUILDING:DETOUR', 'DETOUR']
+  TargetAdd('p3detour_composite1.obj', opts=OPTS, input='p3detour_composite1.cxx')
+
+  TargetAdd('libp3detour.dll', input='p3detour_composite1.obj')
+  TargetAdd('libp3detour.dll', input=COMMON_PANDA_LIBS)
+  TargetAdd('libp3detour.dll', opts=OPTS)
+
+  OPTS=['DIR:panda/src/detour', 'DETOUR', 'RTTI', 'EXCEPTIONS']
+  IGATEFILES=GetDirectoryContents('panda/src/detour', ["*.h"])
+  TargetAdd('libp3detour.in', opts=OPTS, input=IGATEFILES)
+  TargetAdd('libp3detour.in', opts=['IMOD:panda3d.detour', 'ILIB:libp3detour', 'SRCDIR:panda/src/detour'])
+  TargetAdd('libp3detour_igate.obj', input='libp3detour.in', opts=["DEPENDENCYONLY"])
+
+  TargetAdd('detour_module.obj', input='libp3detour.in')
+  TargetAdd('detour_module.obj', opts=OPTS)
+  TargetAdd('detour_module.obj', opts=['IMOD:panda3d.detour', 'ILIB:detour', 'IMPORT:panda3d.core'])
+
+  TargetAdd('detour.pyd', input='detour_module.obj')
+  TargetAdd('detour.pyd', input='libp3detour_igate.obj')
+  TargetAdd('detour.pyd', input='libp3detour.dll')
+  TargetAdd('detour.pyd', input='libp3interrogatedb.dll')
+  TargetAdd('detour.pyd', input=COMMON_PANDA_LIBS)
+  TargetAdd('detour.pyd', opts=['PYTHON', 'DETOUR'])
 
 #
 # DIRECTORY: panda/src/p3awesomium

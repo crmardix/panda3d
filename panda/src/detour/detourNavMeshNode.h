@@ -15,8 +15,9 @@
 #ifndef DETOURNAVMESHNODE_H
 #define DETOURNAVMESHNODE_H
 
-#include "config_navigation.h"
+#include "config_detour.h"
 #include "pandaNode.h"
+#include "geomNode.h"
 
 #include <DetourNavMesh.h>
 
@@ -33,9 +34,7 @@ PUBLISHED:
 
 private:
   PT(GeomNode) _viz_geom;
-#ifndef CPPPARSER
-  dtNavMesh *_nav_mesh;
-#endif
+  dtNavMesh _nav_mesh;
 
 public:
   static TypeHandle get_class_type() {
@@ -55,3 +54,5 @@ private:
   static TypeHandle _type_handle;
 
 };
+
+#endif
