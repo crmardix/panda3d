@@ -630,6 +630,7 @@ if (COMPILER == "MSVC"):
             LibName("ROCKET", GetThirdpartyDir() + "rocket/lib/RocketDebugger.lib")
     if (PkgSkip("DETOUR")==0):
         LibName("DETOUR", GetThirdpartyDir() + "recastnavigation/lib/Detour.lib")
+        IncDirectory("DETOUR", GetThirdpartyDir() + "recastnavigation/include")
     if (PkgSkip("OPENAL")==0):   LibName("OPENAL",   GetThirdpartyDir() + "openal/lib/OpenAL32.lib")
     if (PkgSkip("ODE")==0):
         LibName("ODE",      GetThirdpartyDir() + "ode/lib/ode_single.lib")
@@ -4098,7 +4099,7 @@ if (PkgSkip("DETOUR") == 0) and (not RUNTIME):
   TargetAdd('libp3detour.dll', input=COMMON_PANDA_LIBS)
   TargetAdd('libp3detour.dll', opts=OPTS)
 
-  OPTS=['DIR:panda/src/detour', 'DETOUR', 'RTTI', 'EXCEPTIONS']
+  OPTS=['DIR:panda/src/detour', 'DETOUR']
   IGATEFILES=GetDirectoryContents('panda/src/detour', ["*.h"])
   TargetAdd('libp3detour.in', opts=OPTS, input=IGATEFILES)
   TargetAdd('libp3detour.in', opts=['IMOD:panda3d.detour', 'ILIB:libp3detour', 'SRCDIR:panda/src/detour'])
